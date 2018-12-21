@@ -25,7 +25,8 @@ VOC_CLASSES = (  # always index 0
     'sheep', 'sofa', 'train', 'tvmonitor')
 
 # note: if you used our download scripts, this should be right
-VOC_ROOT = osp.join(HOME, "data/VOCdevkit/")
+# VOC_ROOT = osp.join(HOME, "data/VOCdevkit/")
+VOC_ROOT = '/media/liah/DATA/others/data/voc/VOCdevkit/'
 
 
 class VOCAnnotationTransform(object):
@@ -109,7 +110,8 @@ class VOCDetection(data.Dataset):
         for (year, name) in image_sets:
             rootpath = osp.join(self.root, 'VOC' + year)
             for line in open(osp.join(rootpath, 'ImageSets', 'Main', name + '.txt')):
-                self.ids.append((rootpath, line.strip()))
+                # self.ids.append((rootpath, line.strip()))
+                self.ids.append((rootpath, line.strip().split()[0]))
 
     def __getitem__(self, index):
         im, gt, h, w = self.pull_item(index)
