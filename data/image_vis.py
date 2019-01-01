@@ -25,7 +25,7 @@ from data import OrcaDetection, ORCA_ROOT, OrcaAnnotationTransform
 
 # here we specify year (07 or 12) and dataset ('test', 'val', 'train')
 testset = OrcaDetection(ORCA_ROOT, [('2007', 'val')], None, OrcaAnnotationTransform())
-img_id = 24
+img_id = 32
 image = testset.pull_image(img_id)
 # pull_anno returns a tuple that
 anno_boxes = testset.pull_anno(img_id)[1]

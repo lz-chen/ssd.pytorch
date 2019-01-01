@@ -121,9 +121,11 @@ class OrcaDetection(data.Dataset):
         for anno in annotations:
             self.imgid2annos[anno['image_id']].append({'cate_id': anno['category_id'], 'bbox': anno['bbox']})
         for img in images:
-            self.ids.append(img['id'])
-            self.imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
-            self.imgid2imghw[img['id']] = (img['height'], img['width'])
+            fpath = Path(self.root).joinpath('JPEGImages', img['file_name'])
+            if fpath.is_file():
+                self.ids.append(img['id'])
+                self.imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
+                self.imgid2imghw[img['id']] = (img['height'], img['width'])
 
         # for (year, name) in image_sets:
         #     # rootpath = osp.join(self.root, 'VOC' + year)
