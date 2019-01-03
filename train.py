@@ -39,18 +39,25 @@ parser.add_argument('--num_workers', default=4, type=int,
                     help='Number of workers used in dataloading')
 parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use CUDA to train model')
-parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float,
+parser.add_argument('--lr', '--learning-rate', default=1e-4, type=float,
                     help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float,
                     help='Momentum value for optim')
-parser.add_argument('--weight_decay', default=5e-4, type=float,
+parser.add_argument('--weight_decay',
+                    default=1e-5,
+                    # default=5e-4,
+                    type=float,
                     help='Weight decay for SGD')
 parser.add_argument('--gamma', default=0.1, type=float,
                     help='Gamma update for SGD')
 parser.add_argument('--visdom', default=False, type=str2bool,
                     help='Use visdom for loss visualization')
-parser.add_argument('--save_folder', default='weights/',
+parser.add_argument('--save_folder', default='weights/orca/',
                     help='Directory for saving checkpoint models')
+parser.add_argument('--print_every', type=int, default=10,
+                    help='print model training stats after number of iterations')
+parser.add_argument('--save_every', type=int, default=100,
+                    help='save model weights after a number of iterations')
 args = parser.parse_args()
 
 if torch.cuda.is_available():
@@ -88,8 +95,6 @@ def train():
                                                          MEANS))
 
     elif args.dataset == 'ORCA':
-        # if args.dataset_root == ORCA_ROOT:
-        #     parser.error('Must specify dataset if specifying dataset_root')
         cfg = orca
         dataset = OrcaDetection(root=args.dataset_root,
                                 transform=SSDAugmentation(cfg['min_dim'],
@@ -196,7 +201,7 @@ def train():
         loc_loss += loss_l.data[0]
         conf_loss += loss_c.data[0]
 
-        if iteration % 10 == 0:
+        if iteration % args.print_every == 0:
             print('timer: %.4f sec.' % (t1 - t0))
             print('iter ' + repr(iteration) + ' || Loss: %.4f ||' % (loss.data[0]), end=' ')
 
@@ -204,9 +209,9 @@ def train():
             update_vis_plot(iteration, loss_l.data[0], loss_c.data[0],
                             iter_plot, epoch_plot, 'append')
 
-        if iteration != 0 and iteration % 5000 == 0:
+        if iteration != 0 and iteration % args.save_every == 0:
             print('Saving state, iter:', iteration)
-            torch.save(ssd_net.state_dict(), 'weights/ssd300_COCO_' +
+            torch.save(ssd_net.state_dict(), args.save_folder + 'ssd_' + args.dataset + '_' +
                        repr(iteration) + '.pth')
     torch.save(ssd_net.state_dict(),
                args.save_folder + '' + args.dataset + '.pth')

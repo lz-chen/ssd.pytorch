@@ -120,10 +120,11 @@ class OrcaDetection(data.Dataset):
         self.imgid2annos = defaultdict(list)
         for anno in annotations:
             self.imgid2annos[anno['image_id']].append({'cate_id': anno['category_id'], 'bbox': anno['bbox']})
+        self.ids = list(self.imgid2annos.keys())
         for img in images:
             fpath = Path(self.root).joinpath('JPEGImages', img['file_name'])
-            if fpath.is_file():
-                self.ids.append(img['id'])
+            if fpath.is_file() and img['id'] in self.ids:
+                # self.ids.append(img['id'])
                 self.imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
                 self.imgid2imghw[img['id']] = (img['height'], img['width'])
 
