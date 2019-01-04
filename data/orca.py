@@ -117,6 +117,11 @@ class OrcaDetection(data.Dataset):
         self.ids = []
         self.imgid2imgfpath = {}
         self.imgid2imghw = {}
+
+        self.test_ids = []
+        self.test_imgid2imgfpath = {}
+        self.test_imgid2imghw = {}
+
         self.imgid2annos = defaultdict(list)
         for anno in annotations:
             self.imgid2annos[anno['image_id']].append({'cate_id': anno['category_id'], 'bbox': anno['bbox']})
@@ -127,6 +132,10 @@ class OrcaDetection(data.Dataset):
                 # self.ids.append(img['id'])
                 self.imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
                 self.imgid2imghw[img['id']] = (img['height'], img['width'])
+            elif fpath.is_file() and img['id'] not in self.ids:
+                self.test_ids.append(img['id'])
+                self.test_imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
+                self.test_imgid2imghw[img['id']] = (img['height'], img['width'])
 
         # for (year, name) in image_sets:
         #     # rootpath = osp.join(self.root, 'VOC' + year)
@@ -172,6 +181,29 @@ class OrcaDetection(data.Dataset):
         return torch.from_numpy(img).permute(2, 0, 1), target, height, width
         # return torch.from_numpy(img), target, height, width
 
+    def pull_test_item(self, index):
+        img_id = self.test_ids[index]
+        # target = ET.parse(self._annopath % img_id).getroot()
+        img = cv2.imread(self.test_imgid2imgfpath[img_id].as_posix())
+        height, width, channels = img.shape
+
+        # if self.target_transform is not None:
+        #     target = self.target_transform(img_id, self.imgid2annos, width, height)
+            # now target is the scaled [xmin ymin xmax yman class_id]
+
+        # # self.transform = SSDAugmentation
+        # if self.transform is not None:
+        #     #
+        #     target = np.array(target)
+        #     img, boxes, labels = self.transform(img, target[:, :4], target[:, 4])
+        #     # to rgb
+        #     img = img[:, :, (2, 1, 0)]
+        #     # img = img.transpose(2, 0, 1)
+        #     target = np.hstack((boxes, np.expand_dims(labels, axis=1)))
+
+        return torch.from_numpy(img).permute(2, 0, 1), None, height, width
+        # return torch.from_numpy(img), target, height, width
+
     def pull_image(self, index):
         '''Returns the original image object at index in PIL form
 
@@ -185,6 +217,20 @@ class OrcaDetection(data.Dataset):
         '''
         img_id = self.ids[index]
         return cv2.imread(self.imgid2imgfpath[img_id].as_posix(), cv2.IMREAD_COLOR)
+
+    def pull_test_image(self, index):
+        '''Returns the original image object at index in PIL form
+
+        Note: not using self.__getitem__(), as any transformations passed in
+        could mess up this functionality.
+
+        Argument:
+            index (int): index of img to show
+        Return:
+            PIL img
+        '''
+        img_id = self.test_ids[index - len(self.ids)]
+        return cv2.imread(self.test_imgid2imgfpath[img_id].as_posix(), cv2.IMREAD_COLOR)
 
     def pull_anno(self, index):
         '''Returns the original annotation of image at index
