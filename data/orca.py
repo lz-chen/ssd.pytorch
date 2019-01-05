@@ -101,6 +101,7 @@ class OrcaDetection(data.Dataset):
     """
 
     def __init__(self, root,
+                 img_folder='JPEGImages',
                  image_sets=[('2007', 'trainval'), ('2012', 'trainval')],
                  transform=None, target_transform=OrcaAnnotationTransform(),
                  dataset_name='orcatag'):
@@ -127,14 +128,14 @@ class OrcaDetection(data.Dataset):
             self.imgid2annos[anno['image_id']].append({'cate_id': anno['category_id'], 'bbox': anno['bbox']})
         self.ids = list(self.imgid2annos.keys())
         for img in images:
-            fpath = Path(self.root).joinpath('JPEGImages', img['file_name'])
+            fpath = Path(self.root).joinpath(img_folder, img['file_name'])
             if fpath.is_file() and img['id'] in self.ids:
                 # self.ids.append(img['id'])
-                self.imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
+                self.imgid2imgfpath[img['id']] = Path(self.root).joinpath(img_folder, img['file_name'])
                 self.imgid2imghw[img['id']] = (img['height'], img['width'])
             elif fpath.is_file() and img['id'] not in self.ids:
                 self.test_ids.append(img['id'])
-                self.test_imgid2imgfpath[img['id']] = Path(self.root).joinpath('JPEGImages', img['file_name'])
+                self.test_imgid2imgfpath[img['id']] = Path(self.root).joinpath(img_folder, img['file_name'])
                 self.test_imgid2imghw[img['id']] = (img['height'], img['width'])
 
         # for (year, name) in image_sets:
