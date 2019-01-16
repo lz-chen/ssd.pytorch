@@ -16,17 +16,18 @@ import cv2
 #     torch.set_default_tensor_type('torch.cuda.FloatTensor')
 from ssd import build_ssd
 from pathlib import Path
-
-net = build_ssd('test', size=300, num_classes=2)  # initialize SSD
-net.load_weights('../weights/orca/ORCA.pth')
+from data import ORCA_CLASSES as labels
 
 from matplotlib import pyplot as plt
 # from data import VOCDetection, VOC_ROOT, VOCAnnotationTransform
 from data import OrcaDetection, ORCA_ROOT, OrcaAnnotationTransform
 
+net = build_ssd('test', size=300, num_classes=2)  # initialize SSD
+net.load_weights('../weights/orca/ORCA.pth')
+
 # here we specify year (07 or 12) and dataset ('test', 'val', 'train')
 testset = OrcaDetection(ORCA_ROOT,
-                        img_folder='JPEGImages_all',
+                        img_folder='JPEGImages',
                         image_sets=[('2007', 'val')],
                         transform=None,
                         target_transform=OrcaAnnotationTransform())
@@ -35,10 +36,10 @@ pred_path = Path('../predictions')
 if not pred_path.is_dir():
     pred_path.mkdir()
 
-for img_id in range(400, 500):
+for img_id in range(0, 300):
 
     if img_id < len(testset.ids):
-        image = testset.pull_image(img_id)
+        image = testset.pull_image(img_id) # unscaled value between 0~255
         anno_boxes = testset.pull_anno(img_id)[1]
     else:
         image = testset.pull_test_image(img_id)
@@ -72,7 +73,6 @@ for img_id in range(400, 500):
     #     xx = xx.cuda()
     y = net(xx)
 
-    from data import ORCA_CLASSES as labels
 
     top_k = 10
 
