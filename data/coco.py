@@ -4,7 +4,7 @@ import os.path as osp
 import sys
 import torch
 import torch.utils.data as data
-import torchvision.transforms as transforms
+# import torchvision.transforms as transforms
 import cv2
 import numpy as np
 

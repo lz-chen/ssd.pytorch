@@ -21,8 +21,8 @@ else:
     import xml.etree.ElementTree as ET
 
 ORCA_CLASSES = ('orca',)
-ORCA_ROOT = '/media/liah/DATA/others/data/orcatag'
-
+# ORCA_ROOT = '/media/liah/DATA/others/data/orcatag'
+ORCA_ROOT = '/home/liah/Documents/data/orca'
 IMGS, ANNOS, CATES = 'images', 'annotations', 'categories'
 
 
